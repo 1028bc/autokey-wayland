@@ -15,6 +15,9 @@ I created this script to test the all of the methods in the clipboard API.  It m
     #  Enable script output to the Autokey application log,
     #  ~/.local/share/autokey/autokey.log
     logger = __import__("autokey.logger").logger.get_logger(__name__ + ".clipboard.script")
+    
+    # Start testing
+    logger.debug('clipboard API test begins')
        
     logger.debug(f'The clipboard\'s current content = "{clipboard.get_clipboard()}"')    
     test_content = f'The current date and time are {datetime.datetime.now()}'
@@ -39,4 +42,6 @@ I created this script to test the all of the methods in the clipboard API.  It m
         logger.debug('The text pulled matches the text pushed')
     else:
         logger.error(f'The text pushed, "{test_content}", does not match the text pulled, "{result}"')
+    
+    logger.debug('clipboard API test complete')
     

@@ -7,11 +7,11 @@ AutoKey on Wayland tries to connect to all of the keyboards and mice attached to
 
 As the message says, you should enter the names of the keyboard and mouse devices into the AutoKey configuration file:
 
-First step, you need to find and remember the exact names of the devices you want to add, as they are given in the list provided by the pop-up message.  Then, when you click the "Open" button, you will be placed into an edit session with the AutoKey configuration file.  You need to enter the keyboard and mouse names in the <code>keyboard: []</code> and <code>mouse: []</code> lists as shown in the edit session below:
+First step, you need to find and remember the exact names of the devices you want to add, as they are given in the list provided by the pop-up message.  Then, when you click the "Open" button, you will be placed into an edit session with the AutoKey configuration file.  You need to enter the keyboard and mouse names in the ``keyboard: []`` and ``mouse: []`` lists as shown in the edit session below:
 
 .. image:: editconfig.jpg
 
-This example demonstrates that the values can be a list of device names enclosed in brackets (<code>[]</code>) or a single device name as a string.  The Logitech K400 is a USB keyboard that I don't always have attached to the system, but I include it here so that AutoKey will recognize it when I do plug it in.  AutoKey can recognize new devices when they are plugged into a running system provided it knows their names, or their names have the words "keyboard" or "mouse" in them, same as before.
+This example demonstrates that the values can be a list of device names enclosed in brackets (``[]``) or a single device name as a string.  The Logitech K400 is a USB keyboard that I don't always have attached to the system, but I include it here so that AutoKey will recognize it when I do plug it in.  AutoKey can recognize new devices when they are plugged into a running system provided it knows their names, or their names have the words "keyboard" or "mouse" in them, same as before.
 
 Now, when I restart AutoKey, I see this in the debug log::
 
@@ -42,6 +42,6 @@ Now, when I restart AutoKey, I see this in the debug log::
 
 AutoKey has recognized and "grabbed" my keyboard and mouse devices.
 
-Once AutoKey is running, the keyboard and mouse device names can be adjusted in AutoKey's Edit ⮞ Preferences dialog.
+Once AutoKey is running, the keyboard and mouse device names can be adjusted in AutoKey's Edit ⮞ Preferences dialog.  You can also use this dialog to add additional devices that AutoKey missed during startup.
 
 .. image:: preferences.jpg

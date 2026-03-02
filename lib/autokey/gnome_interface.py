@@ -97,6 +97,33 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
     
     def switch_workspace(self, workspace_number):
         self._dbus_switch_workspace(workspace_number)
+        
+    def get_properties(self, window_id):
+        return self._dbus_get_properties(window_id)
+        
+    def stick_window(self, window_id):
+        self._dbus_stick_window(window_id)
+        
+    def unstick_window(self, window_id):
+        self._dbus_unstick_window(window_id)
+        
+    def maximize_window(self, window_id, direction):
+        self._dbus_maximize_window(window_id, direction)
+        
+    def unmaximize_window(self, window_id, direction):
+        self._dbus_unmaximize_window(window_id, direction)
+        
+    def make_fullscreen_window(self, window_id):
+        self._dbus_make_fullscreen_window(window_id)
+        
+    def unmake_fullscreen_window(self, window_id):
+        self._dbus_unmake_fullscreen_window(window_id)
+        
+    def make_above_window(self, window_id):
+        self._dbus_make_above_window(window_id)
+        
+    def unmake_above_window(self, window_id):
+        self._dbus_unmake_above_window(window_id)
 
     def _active_window(self):
         #TODO probably can be done more efficiently with an additional dbus method in the gnome extension
@@ -151,10 +178,10 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
 
     def _dbus_activate_window(self, window_id):
         try:
-            self.dbus_interface.Activate(window_id)
+            self.dbus_interface.Raise(window_id)
         except dbus.exceptions.DBusException as e:  
             self.__init__()
-            self.dbus_interface.Activate(window_id)
+            self.dbus_interface.Raise(window_id)
 
     def _dbus_move_resize_window(self, window_id, x, y, width, height):
         try:
@@ -197,3 +224,66 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
         except dbus.exceptions.DBusException as e:
             self.__init__()
             return self.dbus_interface.SwitchWorkspace(workspace_number)
+
+    def _dbus_get_properties(self, window_id):
+        try:
+            return json.loads(self.dbus_interface.Properties(window_id))
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            return json.loads(self.dbus_interface.Properties(window_id))
+
+    def _dbus_stick_window(self, window_id):
+        try:
+            self.dbus_interface.Stick(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.Stick(window_id)
+    
+    def _dbus_unstick_window(self, window_id):
+        try:
+            self.dbus_interface.UnStick(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.UnStick(window_id)
+        
+    def _dbus_maximize_window(self, window_id, direction):
+        try:
+            self.dbus_interface.Maximize(window_id, direction)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.Maximize(window_id, direction)
+        
+    def _dbus_unmaximize_window(self, window_id, direction):
+        try:
+            self.dbus_interface.UnMaximize(window_id, direction)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.UnMaximize(window_id, direction)
+        
+    def _dbus_make_fullscreen_window(self, window_id):
+        try:
+            self.dbus_interface.MakeFullscreen(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.MakeFullscreen(window_id)
+        
+    def _dbus_unmake_fullscreen_window(self, window_id):
+        try:
+            self.dbus_interface.UnMakeFullscreen(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.UnMakeFullscreen(window_id)
+        
+    def _dbus_make_above_window(self, window_id):
+        try:
+            self.dbus_interface.MakeAbove(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.MakeAbove(window_id)  
+                 
+    def _dbus_unmake_above_window(self, window_id):
+        try:
+            self.dbus_interface.UnMakeAbove(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.UnMakeAbove(window_id)

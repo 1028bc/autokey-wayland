@@ -30,6 +30,42 @@ const MR_DBUS_IFACE = `
          <arg type="u" direction="in" name="winid" />
          <arg type="s" direction="out" name="win" />
       </method>
+      <method name="Properties">
+         <arg type="u" direction="in" name="winid" />
+         <arg type="s" direction="out" name="win" />
+      </method>
+      <method name="Stick">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="UnStick">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="Maximize">
+         <arg type="u" direction="in" name="winid" />
+         <arg type="i" direction="in" name="directions" />
+      </method>
+      <method name="UnMaximize">
+         <arg type="u" direction="in" name="winid" />
+         <arg type="i" direction="in" name="directions" />
+      </method>
+      <method name="Shade">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="UnShade">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="MakeFullscreen">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="UnMakeFullscreen">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="MakeAbove">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="UnMakeAbove">
+         <arg type="u" direction="in" name="winid" />
+      </method>
       <method name="GetTitle">
          <arg type="u" direction="in" name="winid" />
          <arg type="s" direction="out" name="win" />
@@ -55,22 +91,19 @@ const MR_DBUS_IFACE = `
          <arg type="i" direction="in" name="x" />
          <arg type="i" direction="in" name="y" />
       </method>
-      <method name="Maximize">
-         <arg type="u" direction="in" name="winid" />
-      </method>
       <method name="Minimize">
          <arg type="u" direction="in" name="winid" />
       </method>
-      <method name="Unmaximize">
-         <arg type="u" direction="in" name="winid" />
-      </method>
-      <method name="Unminimize">
+      <method name="UnMinimize">
          <arg type="u" direction="in" name="winid" />
       </method>
       <method name="Activate">
          <arg type="u" direction="in" name="winid" />
       </method>
       <method name="Focus">
+         <arg type="u" direction="in" name="winid" />
+      </method>
+      <method name="Raise">
          <arg type="u" direction="in" name="winid" />
       </method>
       <method name="SwitchWorkspace">
@@ -93,6 +126,7 @@ const MR_DBUS_IFACE = `
    </interface>
 </node>`;
 
+/*  meta_window API doc: https://gjs-docs.gnome.org/meta10~10/meta.window  */
 
 export default class Extension {
     enable() {
@@ -107,24 +141,20 @@ export default class Extension {
     }
 
     _get_window_by_wid(winid) {
-        let win = global.get_window_actors().find(w => w.meta_window.get_id() == winid);
-        return win;
+        return global.get_window_actors().find(w => w.meta_window.get_id() == winid);
     }
     
     _get_workspace_by_wks(wksid) {
-        let mgr = global.workspace_manager;
-        if (mgr) {
-            let wks = mgr.get_workspace_by_index(wksid);
-            return wks;
+		let mgr = global.workspace_manager;
+		if (mgr) {
+            return mgr.get_workspace_by_index(wksid);
         }
         return;
     }
 
     List() {
         let win = global.get_window_actors();
-
         let workspaceManager = global.workspace_manager;
-
         var winJsonArr = [];
         win.forEach(function (w) {
             winJsonArr.push({
@@ -171,9 +201,9 @@ export default class Extension {
                 canmaximize: w.meta_window.can_maximize(),
                 maximized: w.meta_window.get_maximized(),
                 canminimize: w.meta_window.can_minimize(),
-                canshade: w.meta_window.can_shade(),
+                /*  canshade: w.meta_window.can_shade(), */
                 display: w.meta_window.get_display(),
-                frame_bounds: w.meta_window.get_frame_bounds(),
+                /*  frame_bounds: w.meta_window.get_frame_bounds(),  */
                 frame_type: w.meta_window.get_frame_type(),
                 window_type: w.meta_window.get_window_type(),
                 layer: w.meta_window.get_layer(),
@@ -186,6 +216,115 @@ export default class Extension {
         } else {
             throw new Error('Not found');
         }
+    }
+
+	Properties(winid) {
+		/*  Can't find a function that works to change modal or shaded.  */
+		/*  There are functions that change shaded but no way to get current state.  */
+		/*  Window properties are not writeable.  */
+        let w = this._get_window_by_wid(winid);
+        if (w) {
+            return JSON.stringify({
+		        is_modal: (w.meta_window['window-type'] == 4),
+                /*  is_sticky - not available  */
+                is_maximized_vert: w.meta_window['maximized-vertically'],
+                is_maximized_horz: w.meta_window['maximized-horizontally'], 
+                /*  is_shaded - not available  */
+                is_skip_taskbar: w.meta_window['skip_taskbar'],
+				is_hidden: w.meta_window.is_hidden(),
+				is_fullscreen: w.meta_window['fullscreen'],
+                is_above: w.meta_window['above']
+            });
+        } else {
+            throw new Error('Not found');
+        }
+    }
+
+	Stick(winid) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.stick();
+        else
+            throw new Error('Not found');
+    }
+    
+	UnStick(winid) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.unstick();
+        else
+            throw new Error('Not found');
+    }
+
+	Maximize(winid, directions) {
+		/*  Directions:
+		 *  1 - horizontal
+		 *  2 - vertical
+		 *  3 - both
+		 */
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.maximize(directions);
+        else
+            throw new Error('Not found');
+    }
+    
+    UnMaximize(winid, directions) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.unmaximize(directions);
+        else
+            throw new Error('Not found');
+    }
+
+    /*  Doesn't work  */
+	Shade(winid) {       
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.shade(global.get_current_time());
+        else
+            throw new Error('Not found');
+    }
+    
+    /*  Doesn't work  */
+	UnShade(winid) {      
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.unshade(global.get_current_time());
+        else
+            throw new Error('Not found');
+    }
+	
+    MakeFullscreen(winid, fullscreen) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.make_fullscreen();
+        else
+            throw new Error('Not found');
+    }
+
+    UnMakeFullscreen(winid) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.unmake_fullscreen();
+        else
+            throw new Error('Not found');
+    }
+
+    MakeAbove(winid) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.make_above();
+        else
+            throw new Error('Not found');
+    }
+
+    UnMakeAbove(winid) {
+        let w = this._get_window_by_wid(winid);
+        if (w)
+            w.meta_window.unmake_above();
+        else
+            throw new Error('Not found');
     }
 
     GetTitle(winid) {
@@ -210,8 +349,6 @@ export default class Extension {
         if (win) {
             if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-
-
             win.meta_window.move_resize_frame(1, x, y, width, height);
         } else {
             throw new Error('Not found');
@@ -223,7 +360,6 @@ export default class Extension {
         if (win) {
             if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-
             win.meta_window.move_xCoordresize_frame(1, win.get_x(), win.get_y(), width, height);
         } else {
             throw new Error('Not found');
@@ -235,19 +371,10 @@ export default class Extension {
         if (win) {
             if (win.meta_window.maximized_horizontally || win.meta_window.maximized_vertically)
                 win.meta_window.unmaximize(3);
-
             win.meta_window.move_frame(1, x, y);
         } else {
             throw new Error('Not found');
         }
-    }
-
-    Maximize(winid) {
-        let win = this._get_window_by_wid(winid).meta_window;
-        if (win)
-            win.maximize(3);
-        else
-            throw new Error('Not found');
     }
 
     Minimize(winid) {
@@ -258,15 +385,7 @@ export default class Extension {
             throw new Error('Not found');
     }
 
-    Unmaximize(winid) {
-        let win = this._get_window_by_wid(winid).meta_window;
-        if (win)
-            win.unmaximize(3);
-        else
-            throw new Error('Not found');
-    }
-
-    Unminimize(winid) {
+    UnMinimize(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
         if (win)
             win.unminimize();
@@ -274,6 +393,15 @@ export default class Extension {
             throw new Error('Not found');
     }
 
+    Raise(winid) {
+        let win = this._get_window_by_wid(winid).meta_window;
+        if (win)
+            win.raise();
+        else
+            throw new Error('Not found');
+    }
+
+	/*  Doesn't work in Wayland, use Raise instead */
     Activate(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
         if (win)
@@ -282,18 +410,19 @@ export default class Extension {
             throw new Error('Not found');
     }
 
-    SwitchWorkspace(wksid) {
-        let wks = this._get_workspace_by_wks(wksid);
-        if (wks)
-            wks.activate(global.get_current_time());
-        else
-            throw new Error('Not found');
-    }
-
+	/*  Doesn't work in Wayland, use Raise instead */
     Focus(winid) {
         let win = this._get_window_by_wid(winid).meta_window;
         if (win)
             win.focus(global.get_current_time());
+        else
+            throw new Error('Not found');
+    }
+
+    SwitchWorkspace(wksid) {
+        let wks = this._get_workspace_by_wks(wksid);
+        if (wks)
+            wks.activate(global.get_current_time());
         else
             throw new Error('Not found');
     }
@@ -313,9 +442,7 @@ export default class Extension {
     }
 
     ScreenSize() {
-        let x = global.screen_width;
-        let y = global.screen_height;
-        return [x, y];
+        return [global.screen_width, global.screen_height];
     }
 
     CheckVersion() {

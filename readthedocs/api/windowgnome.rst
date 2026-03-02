@@ -8,9 +8,6 @@ This class is invoked as the "window" class in AutoKey scripts.  For example, th
 "autokey.scripting.window_gnome.Window.activate()" method documented below is
 called as "window.get_activate()" in an AutoKey script.
 
-Due to Wayland's security constraints there are two window API methods that
-cannot be implemented under Wayland: window.activate() and window.set_property().
-
 .. automodule:: autokey.common
    :no-members:
 
@@ -22,4 +19,3 @@ cannot be implemented under Wayland: window.activate() and window.set_property()
 
 .. autoclass:: Window
    :members:
-   :exclude-members: activate, set_property

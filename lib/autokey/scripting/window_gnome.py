@@ -71,7 +71,7 @@ class Window(AbstractWindow):
 
         :param title: title to match against (as a regular expression)
         :param timeOut: period (seconds) to wait before giving up
-        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param by_hex: If true, will interpret the C{title} as a hexid
         :rtype: boolean
         """
         start = time.time()
@@ -191,12 +191,105 @@ class Window(AbstractWindow):
 
     def set_property(self, title, action, prop, matchClass=False, by_hex=False):
         """
+        Set a property on the given window using the specified action
+
+        Usage: C{window.set_property(title, action, prop, matchClass=False, by_hex=False)}
+
+        Allowable actions:
+
+        - add
+        - remove
+        - toggle
+
+        Allowable properties: 
+
+        - sticky  ("add" or "remove" only, no "toggle")
+        - maximized_vert
+        - maximized_horz
+        - fullscreen
+        - above
+
+        The following properties, available in the X11 version of this method, are not implemented in GNOME/Wayland:
+        
+        - modal
+        - shaded
+        - skip_taskbar
+        - skip_pager
+        - hidden
+
+        :param title: window title to match against (as case-insensitive substring match)
+        :param action: one of the actions listed above
+        :param prop: one of the properties listed above
+        :param matchClass: if True, match on the window class instead of the title
+        :param by_hex: If true, will interpret the C{title} as a hexid
         """
-        raise NotImplementedError
+        target_window = self.__get_target_window(title, matchClass, by_hex)
+        if target_window:
+            properties = self.mediator.windowInterface.get_properties(target_window['id'])
+            if prop == 'sticky':
+                if action == 'toggle':
+                    logger.error('Current sticky state unknown, "toggle" action is not supported in window.set_property()')
+                elif action == 'add':
+                    self.mediator.windowInterface.stick_window(target_window['id'])
+                elif action == 'remove':
+                    self.mediator.windowInterface.unstick_window(target_window['id'])
+                else:
+                    logger.error(f'Unknown action "{action}" in window.set_property()')
+            if prop == 'maximized_vert':
+                if action == 'toggle':
+                    if properties['is_maximized_vert']:
+                        self.mediator.windowInterface.unmaximize_window(target_window['id'], 2)
+                    else:
+                        self.mediator.windowInterface.maximize_window(target_window['id'], 2)
+                elif action == 'add':
+                    self.mediator.windowInterface.maximize_window(target_window['id'], 2)
+                elif action == 'remove':
+                    self.mediator.windowInterface.unmaximize_window(target_window['id'], 2)
+                else:
+                    logger.error(f'Unknown action "{action}" in window.set_property()')
+            elif prop == 'maximized_horz':
+                if action == 'toggle':
+                    if properties['is_maximized_vert']:
+                        self.mediator.windowInterface.unmaximize_window(target_window['id'], 1)
+                    else:
+                        self.mediator.windowInterface.maximize_window(target_window['id'], 1)
+                elif action == 'add':
+                    self.mediator.windowInterface.maximize_window(target_window['id'], 1)
+                elif action == 'remove':
+                    self.mediator.windowInterface.unmaximize_window(target_window['id'], 1)
+                else:
+                    logger.error(f'Unknown action "{action}" in window.set_property()')
+            elif prop == 'fullscreen':
+                if action == 'toggle':
+                    if properties['is_fullscreen']:
+                        self.mediator.windowInterface.unmake_fullscreen_window(target_window['id'])
+                    else:
+                        self.mediator.windowInterface.make_fullscreen_window(target_window['id'])
+                elif action == 'add':
+                    self.mediator.windowInterface.make_fullscreen_window(target_window['id'])
+                elif action == 'remove':
+                    self.mediator.windowInterface.unmake_fullscreen_window(target_window['id'])
+                else:
+                    logger.error(f'Unknown action "{action}" in window.set_property()')
+            elif prop == 'above':
+                if action == 'toggle':
+                    if properties['is_above']:
+                        self.mediator.windowInterface.unmake_above_window(target_window['id'])
+                    else:
+                        self.mediator.windowInterface.make_above_window(target_window['id'])
+                elif action == 'add':
+                    self.mediator.windowInterface.make_above_window(target_window['id'])
+                elif action == 'remove':
+                    self.mediator.windowInterface.unmake_above_window(target_window['id'])
+                else:
+                    logger.error(f'Unknown action "{action}" in window.set_property()')
+            else:
+                logger.error(f'Unknown or unimplemented property "{prop}" in window.set_property()')
+        return
 
     def get_active_geometry(self):
         """
-        Get the geometry of the currently active window. Uses the C{:ACTIVE:} function of C{wmctrl}.
+        Get the geometry of the currently active window.
 
         Usage: C{window.get_active_geometry()}
 
@@ -237,7 +330,6 @@ class Window(AbstractWindow):
         :param win_width: Width of the centered window, defaults to screenx/3. Use -1 to center without size change.
         :param win_height: Height of the centered window, defaults to screeny/3. Use -1 to center without size change.
         :param matchClass: if True, match on the window class instead of the title
-        :raises ValueError: If title or desktop is not found by wmctrl
         :param by_hex: If true, interpret the C{title} as a hexid
         """
         (screen_width, screen_height) = self.mediator.windowInterface.get_screensize()

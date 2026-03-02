@@ -7,6 +7,9 @@ __pycache__
 build/*
 lib/autokey/qtui/resources/icons/
 
+#  backups
+autokey-gnome-extension/46-orig
+
 # build artifacts
 autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip
 

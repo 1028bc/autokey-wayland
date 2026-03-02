@@ -60,12 +60,44 @@ I created this script to test the all of the methods in the window API.  It migh
     active_title = window.get_active_title()
     logger.debug(f'"{active_title}" window\'s geometry is {window.get_window_geometry(active_title)}')
     
+    logger.debug(f'Activate each window on the desktop one after another, in sequence')
+    for win in window.get_window_list():
+        logger.debug(f"Activating {win['title']}")
+        window.activate(win['hexid'], by_hex=True)
+        time.sleep(2)
+    
     #  Test switching workspaces
     logger.debug(f'In 3 seconds I will switch to workspace #2, wait 3 seconds, and then switch back to workspace #1')
     time.sleep(3) 
     window.switch_desktop(1)
     time.sleep(3)
     window.switch_desktop(0)
+    
+    #  Test set_property() method
+    logger.debug('Testing window.set_property() functions')
+    logger.debug('testing maximize_vert property')
+    window.set_property(saved_hexid, 'add', 'maximized_vert', by_hex=True)
+    time.sleep(3)
+    window.set_property(saved_hexid, 'toggle', 'maximized_vert', by_hex=True)
+    time.sleep(3)
+    
+    logger.debug('testing maximize_horz property')
+    window.set_property(saved_hexid, 'toggle', 'maximized_horz', by_hex=True)
+    time.sleep(3)
+    window.set_property(saved_hexid, 'remove', 'maximized_horz', by_hex=True)
+    time.sleep(3)
+    
+    logger.debug('testing fullscreen property')
+    window.set_property(saved_hexid, 'add', 'fullscreen', by_hex=True)
+    time.sleep(3)
+    window.set_property(saved_hexid, 'remove', 'fullscreen', by_hex=True)
+    time.sleep(3)
+    
+    logger.debug('testing above property (no visible effect on this one)')
+    window.set_property(saved_hexid, 'toggle', 'above', by_hex=True)
+    time.sleep(3)
+    window.set_property(saved_hexid, 'remove', 'above', by_hex=True)
+    time.sleep(3)
     
     #  Test window.wait_for_exist().  We open a dialog window in a new thread,
     #  while this thread waits for it to appear.

@@ -1,7 +1,7 @@
 FN = autokey-gnome-extension@autokey.shell-extension.zip
 
 VERSION = $(shell gnome-shell --version | awk '{print int($$3)}')
-ifeq ($(filter $(VERSION), 40 41 42 43 44),)
+ifeq ($(filter $(VERSION), 40 41 42 43 44 45 46 47 48 49 50),)
 	BUILD_VERSION=46
 else
 	BUILD_VERSION=44

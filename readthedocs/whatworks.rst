@@ -17,9 +17,6 @@ What Works Under Wayland
 What Does Not Work Under Wayland
 --------------------------------
 
-- There are two scripting API window methods that do not work in Wayland, 
-  window.activate() and window.set_property().  See the `this table`_ for exact 
-  details on which scripting API methods work under Wayland and which ones don't.
 - The "highlevel" API methods are not supported.  These were implemented in X11
   using the xautomation utility, which is not available under Wayland.
 - Recording and playing back mouse movements is not supported on Wayland.  This

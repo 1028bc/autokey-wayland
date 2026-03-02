@@ -6,5 +6,4 @@ These scripts are meant to provide examples of the more complex things one can d
 .. toctree::
    contributions/emoji_popup
    contributions/dialog
-   contributions/clipboard
-   contributions/window
+   contributions/testing

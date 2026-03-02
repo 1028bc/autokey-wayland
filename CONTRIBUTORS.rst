@@ -1,108 +1,59 @@
-Contributing
-============
-When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise. We suggest writing new features on top of develop.
+===================================
+Contributing to AutoKey for Wayland
+===================================
 
-Please add a line to CHANGELOG.rst when creating PRs
+Contributions to this project are more than welcome.  The preferred method for contributing something to the project is through `GitHub's Pull Request process`_.  It's always wise to discuss your ideas with us before putting a ton of work into something.  Open a draft PR or an Issue_, describing what you have in mind.  If we can give you any guidance we think might help, we will.
 
-Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
+.. _Issue: https://github.com/dlk3/autokey-wayland/issues
+.. _GitHub's Pull Request process: https://docs.github.com/en/desktop/working-with-your-remote-repository-on-github-or-github-enterprise/creating-an-issue-or-pull-request-from-github-desktop#creating-a-pull-request
 
-.. code:: sh
+---------
+Licensing
+---------
 
-    remote="$1"
-    url="$2"
+AutoKey for Wayland uses the `General Public License v3.0`_.  Your contributions should conform to that license.
 
-    tox
-    exit $?
+.. _General Public License v3.0: https://www.gnu.org/licenses/gpl-3.0.en.html
 
-This will abort the push if any tests fail.
+--------------------
+Program Architecture
+--------------------
 
-It may also be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
+There are two entry points into AutoKey, ``autokey-gtk`` and ``autokey-qt``.  The user selects
+which of these to run based on their preferred environment.  The source for each of these is in
+``lib/autokey/gtkapp.py`` and ``lib/autokey/qtapp.py`` respectively.  Each of these implements
+``AutokeyApplication`` using the appropriate UI components, in ``lib/autokey/gtkui`` and 
+``lib/autokey/qtui``.
 
-GitHub Actions are used to run tests on pull requests to `master` and
-`develop` branches.
+Those apps pass execution to ``lib/autokey/autokey_app.py``.  It sets up the ``IoMediator``, ``ScriptRunner``, and ``PhraseRunner`` services.  The IoMediator examines the run-time
+environment and selects the appropriate system integration components for X11 or Wayland
+respectively.  With Wayland, much of the desktop integration is accomplished by interacting with
+the desktop itself, i.e., GNOME/Mutter or KDE/Kwin.  Keyboard and mouse integration is done through the kernel's input event interface and evdev_.  A list of some of the AutoKey for Wayland modules involved follows.  This list is probably not complete but it should get you started.
 
-Tagged releases merged into `develop`, `beta` and `master` will
-automatically be built.
+.. _evdev: https://pypi.org/project/evdev/
 
-If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
+X11-specific Components
+-----------------------
 
-Testing
-=======
-Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
-(`tox` must be installed).
-Running individual test files or folders, or using pytest arguments, can be
-done with `tox -- tests/[test file] [--opt]`.
+- ``lib/autokey/interface.py``
+- ``lib/autokey/iomediator/\*``
+- ``lib/autokey/scripting/clipboard_gtk.py``
+- ``lib/autokey/scripting/clipboard_qt.py``
 
-Lint the project (using flake8) with `tox -e lint`
+Wayland-specific Components
+---------------------------
 
+- ``lib/autokey/uinput_interface.py``
+- ``lib/autokey/wayland_checks.py``
 
-Test coverage reports can be generated with
-`tox -e clean,coverage,report`
+Wayland/GNOME-specific components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+- ``lib/autokey/gnome_interface.py``
+- ``lib/autokey/scripting/clipboard_wayland.py``
+- ``lib/autokey/scripting/window_gnome.py``
 
-Testing requires tox, pytest and PyHamcrest as new test-time only
-dependencies. Tox will install pytest and pyhamcrest in its virtualenv when
-run, so you do not need to worry about it.  Tox itself does need manual
-installation.  Install `tox` through `pip` or `python-tox` through your
-package manager.
+Wayland/KDE-specific components
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current (0.95.x) `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
-The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
-
-The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
-
-Program Structure
-=================
-
-Entry points to autokey are through the various UIs, which implement AutokeyApplication.
-AutokeyApplication starts the autokey service and file monitor when it initialises.
-
-The autokey service starts a new IoMediator, ScriptRunner and PhraseRunner.
-
-If another autokey process is running, the application tries to show its config window then exit.
-This is done by a lock file containing the original process's PID, and checking that that PID's command contains "autokey"
-
-Communication between autokey and autokey-run is done via DBus.
-AutokeyApplication registers itself with DBus for this.
-
-`interface.py` handles communication with X. This includes grabbing hotkeys and sending keypresses.
-It also handles a lot of clipboard mechanics.
-
-https://github.com/autokey/autokey/issues/255 contains a good explanation of how sending text works.
-
-Creating and modifying phrases and hotkeys is done through the ConfigManager.
-
-For a detailed walkthrough of how phrases work, see [this comment](https://github.com/autokey/autokey/issues/334#issuecomment-564203873)
-
-
-Autocomplete in the text Editors
---------------------------------
-Ironically, Qt API autocomplete is super easy to implement but macro/phrase autocomplete appears to be relatively complex.
-
-Gtk Autocomplete is a bit different but I think I've handled it in a pretty good way here.
-
-Both autocomplete implementations are designed to use the output of the extractDoc.py script, this uses the `ast` python module to read in and parse the scripting api and the currently available macros.
-Developers should be aware of exactly where all that information gets pulled from;
-- args come straight from `ast`` and removes `self` if it's present. 
-- It pulls the "comment" from the first line of the DocString, so this should be a short and concise description of the method.
-
-For Macros (currently GTK Autocomplete only):
-- uses the ID, TITLE and ARGS values to generate the lines
-- the was the translation function is used needs to be consistent because it changes the AST, just make any new macros look like the old ones. 
-
-
-For the GTK autocomplete it's sort of custom handling to read in the information for autocompletion, it requires an entire class, Qt interface uses QScintilla text editor which makes it pretty easy.
-
-
-Qt Autocomplete
-^^^^^^^^^^^^^^^
-API Autocomplete happens by using the `QSci.QsciAPIs`, this just reads in the content of the api.txt file.
-
-At this time it doesn't seem like there is a super easy way to add autocomplete to the phrase page, it appears to use a QTextEdit widget, and from what I've read/seen online there is not a super easy way to add autocomplete to that. PRs welcome!
-
-
-GTK Autocomplete
-^^^^^^^^^^^^^^^^
-API Autocomplete reads in the content of the `lib/autokey/gtkui/data/api.csv`, where column 0 is the API call and column 1 is the description. 
-
-Uses the same class for Macro autocomplete, makes the logic a bit tricky, may be worth separating them to be simpler to read. PRs welcome.
+*to be developed*

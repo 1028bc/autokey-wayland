@@ -6,11 +6,10 @@
     "45",
     "46",
     "47",
-    "48",
-    "49"
+    "48"
   ],
   "version": 0.2,
-  "url": "https://github.com/autokey/autokey/autokey-gnome-extension",
+  "url": "https://github.com/dlk3/autokey-wayland/autokey-gnome-extension",
   "session-modes": [
     "user",
     "unlock-dialog"
