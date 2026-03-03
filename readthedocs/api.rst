@@ -29,7 +29,6 @@ the API classes documented here.
    api/gtkclipboard.rst
    api/system.rst
    api/window.rst
-   api/windowgnome.rst
    api/engine.rst
    api/highlevel.rst
    api/common.rst
