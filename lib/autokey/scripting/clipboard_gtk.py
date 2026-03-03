@@ -109,7 +109,7 @@ class GtkClipboard(AbstractClipboard):
         Usage: C{clipboard.get_clipboard()}
 
         :return: text contents of the clipboard
-        :rtype: C{str}
+        :rtype: C{str}, or C{bytearray} on Python >= 3.13
         """
         Gdk.threads_enter()
         text = self._clipboard.wait_for_text()

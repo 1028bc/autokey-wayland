@@ -13,6 +13,8 @@ gir1.2-notify-0.7
 python3-dbus
 python3-gi
 python3-pyudev
+python3-pyqt5.qsci
+python3-pyqt5.qtsvg
 pyqt5-dev-tools
 wmctrl
 x11-xserver-utils

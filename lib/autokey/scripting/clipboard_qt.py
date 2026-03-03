@@ -126,7 +126,7 @@ class QtClipboard(AbstractClipboard):
         Usage: C{clipboard.get_clipboard()}
 
         :return: text contents of the clipboard
-        :rtype: C{str}
+        :rtype: C{str}, or C{bytearray} on Python >= 3.13
         """
         self.__execAsync(self.__getClipboard)
         return str(self.text)

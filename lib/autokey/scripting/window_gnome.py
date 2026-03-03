@@ -111,22 +111,16 @@ class Window(AbstractWindow):
         """
         Close the specified window gracefully
 
-        Usage: C{window.close(title, matchClass=False)}
+        Usage: C{window.close(title, matchClass=False), by_hex=False}
 
         :param title: window title to match against (as case-insensitive substring match)
         :param matchClass: if True, match on the window class instead of the title
         :param by_hex: If true, interpret the C{title} as a hexid
         """
-        if by_hex:
-            self.mediator.windowInterface.close_window(title)
-        else:
-            windows = self.get_window_list()
-            for window in windows:
-                if not matchClass and re.search(rf'{title}', window['title'], re.IGNORECASE):
-                    self.mediator.windowInterface.close_window(window['hexid'])
-                elif matchClass and re.search(rf'{title}', window['class'], re.IGNORECASE):
-                    self.mediator.windowInterface.close_window(window['hexid'])
-        return
+        target_window = self.__get_target_window(title, matchClass, by_hex)
+        if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
+            self.mediator.windowInterface.close_window(target_window['id'])
 
     def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False, by_hex=False):
         """
@@ -371,12 +365,12 @@ class Window(AbstractWindow):
         """
         output_list = []
         for item in self.mediator.windowInterface.get_window_list():
-            window = {
-                'hexid' : item['id'],
-                'desktop' : item['workspace'],
-                'hostname' : socket.gethostname(),
-                'title' : item['wm_title']
-            }
+            window = (
+                item['id'],
+                item['workspace'],
+                socket.gethostname(),
+                item['wm_title']
+            )
             if filter_desktop != -1:
                 if item['workspace'] == filter_desktop:
                     output_list.append(window)

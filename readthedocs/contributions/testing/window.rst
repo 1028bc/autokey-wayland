@@ -27,7 +27,7 @@ I created this script to test the all of the methods in the window API.  It migh
     logger.debug('window API test begins')
     
     # Test getting window information using various search criteria
-    windowList = window.get_window_list()   
+    windowList = window.get_window_list()
     logger.debug(f'List of all windows = \n{json.dumps(windowList, indent=4)}')
     logger.debug(f'List of windows on workspace #2 = \n{json.dumps(window.get_window_list(filter_desktop=1), indent=4)}')
     
@@ -42,6 +42,11 @@ I created this script to test the all of the methods in the window API.  It migh
     
     saved_title = window.get_active_title()
     saved_hexid = window.get_window_hex(':ACTIVE:')
+    #  In the X11 version of this API the get_window_hex() method doesn't
+    #  know about the ':ACTIVE:' title macro.   
+    if not saved_hexid:
+        saved_hexid = window.get_window_hex(saved_title)
+        
     (x, y, height, width) = window.get_window_geometry(saved_hexid, by_hex=True)
     logger.debug(f'"{saved_title}" window\'s geometry is {width}x{height}+{x}+{y}')
     logger.debug(f'"{saved_title}" window\'s hexid is {saved_hexid}')
@@ -50,7 +55,7 @@ I created this script to test the all of the methods in the window API.  It migh
     logger.debug(f'Moving "{saved_title}" window 100 pixels to the left and adding 500 pixels to its width')
     time.sleep(3)
     window.resize_move(saved_hexid, xOrigin=x-100, width=width+500, by_hex=True)
-    
+       
     logger.debug(f'In five seconds I will move the "{saved_title}" window to workspace #2, wait 2 seconds, and move it back')
     time.sleep(5)
     window.move_to_desktop(saved_hexid, 1, by_hex=True)
@@ -69,19 +74,20 @@ I created this script to test the all of the methods in the window API.  It migh
     logger.debug(f'Activate each window on the desktop one after another, in sequence')
     time.sleep(3)
     for win in window.get_window_list():
-        logger.debug(f"Activating {win['title']}")
-        window.activate(win['hexid'], by_hex=True)
+        logger.debug(win)
+        logger.debug(f"Activating {win[3]}")
+        window.activate(win[0], by_hex=True)
         time.sleep(2)
-        
+    
     logger.debug(f'Put windows from other workspaces back where they belong')
     time.sleep(3)
     for win in windowList:
-        if win['desktop'] != 0:
-            window.move_to_desktop(win['hexid'], win['desktop'], by_hex=True)
+        if win[1] != 0:
+            window.move_to_desktop(win[0], win[1], by_hex=True)
     
     #  Test switching workspaces
     logger.debug(f'In 3 seconds I will switch to workspace #2, wait 3 seconds, and then switch back to workspace #1')
-    time.sleep(3) 
+    time.sleep(3)
     window.switch_desktop(1)
     time.sleep(3)
     window.switch_desktop(0)
