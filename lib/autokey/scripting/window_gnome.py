@@ -199,7 +199,7 @@ class Window(AbstractWindow):
         - remove
         - toggle
 
-        Allowable properties: 
+        Properties available in all environments: 
 
         - sticky  ("add" or "remove" only, no "toggle")
         - maximized_vert
@@ -207,7 +207,8 @@ class Window(AbstractWindow):
         - fullscreen
         - above
 
-        The following properties, available in the X11 version of this method, are not implemented in GNOME/Wayland:
+        These additional properties are available exclusively in the X11 
+        environment, using C{wmctrl}:
         
         - modal
         - shaded
