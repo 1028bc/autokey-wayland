@@ -19,3 +19,4 @@ x11-xserver-utils
 zenity
 graphicsmagick-imagemagick-compat
 xautomation
+wl-clipboard

@@ -31,6 +31,7 @@ Requires:	python3-pyudev
 Requires:	wmctrl
 Requires:	ImageMagick
 Requires:	xautomation
+Recommends:	wl-clipboard
 Provides:	autokey = %{version}-%{release}
 %description common
 This package contains the common data shared between the various front ends.

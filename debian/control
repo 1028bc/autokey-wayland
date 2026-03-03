@@ -15,8 +15,8 @@ Build-Depends: debhelper-compat (= 12),
                python3-xlib,
                python3-pyinotify
 Standards-Version: 4.5.0
-Vcs-Browser: https://salsa.debian.org/python-team/applications/autokey
-Vcs-Git: https://salsa.debian.org/python-team/applications/autokey.git
+Vcs-Browser: https://github.com/dlk3/autokey-wayland
+Vcs-Git: https://github.com/dlk3/autokey-wayland.git
 Homepage: https://github.com/dlk3/autokey-wayland
 
 Package: autokey-common
@@ -31,9 +31,10 @@ Depends: imagemagick,
          xautomation,
          ${misc:Depends},
          ${python3:Depends}
+Recommends: wl-clipboard
 Description: desktop automation utility - common data
- AutoKey is a desktop automation utility for Linux and X11. It allows the
- automation of virtually any task by responding to typed abbreviations and
+ AutoKey is a desktop automation utility for Linux, Wayland, and X11. It allows 
+ the automation of virtually any task by responding to typed abbreviations and
  hotkeys. It offers a full-featured GUI that makes it highly accessible for
  novices, as well as a scripting interface offering the full flexibility and
  power of the Python language.
@@ -55,8 +56,8 @@ Depends: autokey-common (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends}
 Description: desktop automation utility - GTK+ version
- AutoKey is a desktop automation utility for Linux and X11. It allows the
- automation of virtually any task by responding to typed abbreviations and
+ AutoKey is a desktop automation utility for Linux, Wayland, and X11. It allows
+ the automation of virtually any task by responding to typed abbreviations and
  hotkeys. It offers a full-featured GUI that makes it highly accessible for
  novices, as well as a scripting interface offering the full flexibility and
  power of the Python language.
@@ -73,8 +74,8 @@ Depends: autokey-common (= ${binary:Version}),
          ${misc:Depends},
          ${python3:Depends}
 Description: desktop automation utility - Qt version
- AutoKey is a desktop automation utility for Linux and X11. It allows the
- automation of virtually any task by responding to typed abbreviations and
+ AutoKey is a desktop automation utility for Linux, Wayland, and X11. It allows
+ the automation of virtually any task by responding to typed abbreviations and
  hotkeys. It offers a full-featured GUI that makes it highly accessible for
  novices, as well as a scripting interface offering the full flexibility and
  power of the Python language.
