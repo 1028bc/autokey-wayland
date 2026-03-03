@@ -30,8 +30,6 @@ import json
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-#TODO review how desktop/workspace switching works with gnome extension. I think this may be in "workspace"
-
 class Window(AbstractWindow):
     """
     Window management with AutoKey GNOME Shell extension
@@ -94,19 +92,19 @@ class Window(AbstractWindow):
         If switchDesktop is False (default), the window will be moved to the current desktop and activated. Otherwise, switch to the window's current desktop and activate it there.
 
         :param title: window title to match against (as case-insensitive substring match)
-        :param switchDesktop: not supported for gnome extension
+        :param switchDesktop: If True, switch to desktop where window resides and activate
         :param matchClass: if True, match on the window class instead of the title
         :param by_hex: If true, interpret the C{title} as a hexid
         """
-        if by_hex:
-            self.mediator.windowInterface.activate_window(title)
-        else:
-            windows = self.get_window_list()
-            for window in windows:
-                if not matchClass and re.search(rf'{title}', window['title'], re.IGNORECASE):
-                    self.mediator.windowInterface.activate_window(window['hexid'])
-                elif matchClass and re.search(rf'{title}', window['class'], re.IGNORECASE):
-                    self.mediator.windowInterface.activate_window(window['hexid'])
+        target_window = self.__get_target_window(title, matchClass, by_hex)
+        if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
+            if switchDesktop:
+                self.mediator.windowInterface.switch_workspace(target_window['workspace'])
+            else:
+                wksid = self.mediator.windowInterface.get_active_desktop_index()              
+                self.mediator.windowInterface.move_to_workspace(target_window['id'], wksid)
+            self.mediator.windowInterface.activate_window(target_window['id'])
         return
 
     def close(self, title, matchClass=False, by_hex=False):
@@ -148,8 +146,8 @@ class Window(AbstractWindow):
         :param by_hex: If true, interpret the C{title} as a hexid
         """
         target_window = self.__get_target_window(title, matchClass, by_hex)
-        #logger.debug(f'window API: target window details:\n{json.dumps(win, indent=4)}')
         if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
             hexid = target_window['id']
             if xOrigin == -1:
                 xOrigin = target_window['x']
@@ -174,8 +172,8 @@ class Window(AbstractWindow):
         :param by_hex: If true, interpret the C{title} as a hexid
         """        
         target_window = self.__get_target_window(title, matchClass, by_hex)
-        #logger.debug(f'window API: target window details:\n{json.dumps(win, indent=4)}')
         if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
             hexid = target_window['id']
             self.mediator.windowInterface.move_to_workspace(hexid, deskNum)
 
@@ -225,6 +223,7 @@ class Window(AbstractWindow):
         """
         target_window = self.__get_target_window(title, matchClass, by_hex)
         if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
             properties = self.mediator.windowInterface.get_properties(target_window['id'])
             if prop == 'sticky':
                 if action == 'toggle':
@@ -335,8 +334,8 @@ class Window(AbstractWindow):
         (screen_width, screen_height) = self.mediator.windowInterface.get_screensize()
         try:
             target_window = self.__get_target_window(title, matchClass, by_hex)
-            #logger.debug(f'window API: target window details:\n{json.dumps(win, indent=4)}')
             if target_window:
+                #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
                 if win_width == -1:
                     win_width = target_window['width']
                 elif not win_width:
@@ -394,8 +393,8 @@ class Window(AbstractWindow):
         Returns C{None} if no matches are found
         """
         target_window = self.__get_target_window(title, False, False)
-        #logger.debug(f'window API: target window details:\n{json.dumps(win, indent=4)}')
         if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
             return target_window['id']
         return None
 
@@ -412,8 +411,8 @@ class Window(AbstractWindow):
         Returns C{None} if no matching window was found
         """
         target_window = self.__get_target_window(title, matchClass, by_hex)
-        #logger.debug(f'window API: target window details:\n{json.dumps(win, indent=4)}')
         if target_window:
+            #logger.debug(f'window API: target window details:\n{json.dumps(target_window, indent=4)}')
             return (target_window['x'], target_window['y'], target_window['width'], target_window['height'])
         return None
 

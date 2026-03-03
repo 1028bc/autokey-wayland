@@ -153,8 +153,6 @@ or not they are supported in the X11 and Wayland environments.  See the
 | window.wait_for_focus()                    | ✔️  | ✔️      |
 +--------------------------------------------+-----+---------+
 
-¹ the ```switchDesktop``` options is not supported
-
 +--------------------------------------------+-----+---------+
 | Engine API                                 | X11 | Wayland |
 +============================================+=====+=========+

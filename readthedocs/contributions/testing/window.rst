@@ -7,12 +7,15 @@ I created this script to test the all of the methods in the window API.  It migh
 
     #  A script that tests (and demonstrates) the window API methods
     
-    #  Enable script output to the Autokey application log,
-    #  ~/.local/share/autokey/autokey.log
-    logger = __import__("autokey.logger").logger.get_logger(__name__ + ".window.script")
+    #  The title of an application window that's on your second workstation screen
+    app_on_workspace_2 = 'nheko'
     
     import json
     import threading
+    
+    #  Enable script output to the Autokey application log,
+    #  ~/.local/share/autokey/autokey.log
+    logger = __import__("autokey.logger").logger.get_logger(__name__ + ".window.script")
     
     # Routine that runs in a separate thread to open a window to see if
     # the window.wait_for_exists() method will detect that event
@@ -45,6 +48,7 @@ I created this script to test the all of the methods in the window API.  It migh
     
     #  Test moving windows around
     logger.debug(f'Moving "{saved_title}" window 100 pixels to the left and adding 500 pixels to its width')
+    time.sleep(3)
     window.resize_move(saved_hexid, xOrigin=x-100, width=width+500, by_hex=True)
     
     logger.debug(f'In five seconds I will move the "{saved_title}" window to workspace #2, wait 2 seconds, and move it back')
@@ -55,16 +59,25 @@ I created this script to test the all of the methods in the window API.  It migh
     window.move_to_desktop(saved_hexid, 0, by_hex=True)
     
     logger.debug(f'Centering the "{saved_title}" window')
+    time.sleep(3)
     window.center_window(saved_hexid, win_width=-1, win_height=-1, by_hex=True)
     
     active_title = window.get_active_title()
     logger.debug(f'"{active_title}" window\'s geometry is {window.get_window_geometry(active_title)}')
+    time.sleep(3)
     
     logger.debug(f'Activate each window on the desktop one after another, in sequence')
+    time.sleep(3)
     for win in window.get_window_list():
         logger.debug(f"Activating {win['title']}")
         window.activate(win['hexid'], by_hex=True)
         time.sleep(2)
+        
+    logger.debug(f'Put windows from other workspaces back where they belong')
+    time.sleep(3)
+    for win in windowList:
+        if win['desktop'] != 0:
+            window.move_to_desktop(win['hexid'], win['desktop'], by_hex=True)
     
     #  Test switching workspaces
     logger.debug(f'In 3 seconds I will switch to workspace #2, wait 3 seconds, and then switch back to workspace #1')
@@ -73,31 +86,48 @@ I created this script to test the all of the methods in the window API.  It migh
     time.sleep(3)
     window.switch_desktop(0)
     
+    #  Test activation with desktop switching
+    logger.debug(f'Activate the {app_on_workspace_2} app, switching to its workspace')
+    time.sleep(3)
+    window.activate(app_on_workspace_2, switchDesktop=True)
+    
+    logger.debug('Switch back to workspace 1')
+    time.sleep(3)
+    window.switch_desktop(0)
+    
+    logger.debug(f'Bring the {app_on_workspace_2} app to this workspace and activate it here')
+    time.sleep(3)
+    window.activate(app_on_workspace_2)
+    
+    logger.debug(f'Moving the {app_on_workspace_2} app back to its original workspace')
+    time.sleep(3)
+    window.move_to_desktop(app_on_workspace_2, 1)
+    
     #  Test set_property() method
     logger.debug('Testing window.set_property() functions')
     logger.debug('testing maximize_vert property')
+    time.sleep(3)
     window.set_property(saved_hexid, 'add', 'maximized_vert', by_hex=True)
     time.sleep(3)
     window.set_property(saved_hexid, 'toggle', 'maximized_vert', by_hex=True)
-    time.sleep(3)
     
     logger.debug('testing maximize_horz property')
+    time.sleep(3)
     window.set_property(saved_hexid, 'toggle', 'maximized_horz', by_hex=True)
     time.sleep(3)
     window.set_property(saved_hexid, 'remove', 'maximized_horz', by_hex=True)
-    time.sleep(3)
     
     logger.debug('testing fullscreen property')
+    time.sleep(3)
     window.set_property(saved_hexid, 'add', 'fullscreen', by_hex=True)
     time.sleep(3)
     window.set_property(saved_hexid, 'remove', 'fullscreen', by_hex=True)
-    time.sleep(3)
     
     logger.debug('testing above property (no visible effect on this one)')
+    time.sleep(3)
     window.set_property(saved_hexid, 'toggle', 'above', by_hex=True)
     time.sleep(3)
     window.set_property(saved_hexid, 'remove', 'above', by_hex=True)
-    time.sleep(3)
     
     #  Test window.wait_for_exist().  We open a dialog window in a new thread,
     #  while this thread waits for it to appear.

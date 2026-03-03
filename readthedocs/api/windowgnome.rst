@@ -6,7 +6,7 @@ GNOME desktop.
 
 This class is invoked as the "window" class in AutoKey scripts.  For example, the
 "autokey.scripting.window_gnome.Window.activate()" method documented below is
-called as "window.get_activate()" in an AutoKey script.
+called as "window.activate()" in an AutoKey script.
 
 .. automodule:: autokey.common
    :no-members:

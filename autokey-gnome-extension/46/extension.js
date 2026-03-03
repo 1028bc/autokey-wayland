@@ -23,6 +23,12 @@ import Gio from 'gi://Gio';
 const MR_DBUS_IFACE = `
 <node>
    <interface name="org.gnome.Shell.Extensions.AutoKey">
+      <method name="GetActiveWorkspaceIndex">
+         <arg type="i" direction="out" name="wksid" />
+      </method>
+      <method name="GetActiveWorkstationIndex">
+         <arg type="i" direction="out" name="wksid" />
+      </method>
       <method name="List">
          <arg type="s" direction="out" name="win" />
       </method>
@@ -72,7 +78,7 @@ const MR_DBUS_IFACE = `
       </method>
       <method name="MoveToWorkspace">
          <arg type="u" direction="in" name="winid" />
-         <arg type="u" direction="in" name="workspaceNum" />
+         <arg type="i" direction="in" name="workspaceNum" />
       </method>
       <method name="MoveResize">
          <arg type="u" direction="in" name="winid" />
@@ -148,6 +154,14 @@ export default class Extension {
 		let mgr = global.workspace_manager;
 		if (mgr) {
             return mgr.get_workspace_by_index(wksid);
+        }
+        return;
+    }
+
+    GetActiveWorkspaceIndex() {
+		let workspaceManager = global.workspace_manager;
+		if (workspaceManager) {
+            return workspaceManager.get_active_workspace_index()
         }
         return;
     }

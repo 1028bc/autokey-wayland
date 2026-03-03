@@ -50,6 +50,9 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
     def __init__(self):
         super().__init__()
 
+    def get_active_desktop_index(self):
+        return self._dbus_get_active_desktop_index()
+
     def get_window_list(self):
         return self._dbus_window_list()
 
@@ -159,7 +162,14 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
             'in_current_workspace': False
         }
         return empty_window
-            
+    
+    def _dbus_get_active_desktop_index(self):
+        try:
+            return self.dbus_interface.GetActiveWorkspaceIndex()
+        except dbus.exceptions.DBusException as e:
+            self.__init__() #reconnect to dbus
+            return self.dbus_interface.GetActiveWorkspaceIndex()
+                
     def _dbus_window_list(self):
         #TODO consider how/if error handling can be implemented
         try:
