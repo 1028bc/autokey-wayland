@@ -1,6 +1,5 @@
-Welcome to AutoKey for Wayland! (and X11 too)
-=============================================
-
+Welcome to AutoKey for Wayland (and X11, too)!
+==============================================
 .. toctree::
    intro
    installation

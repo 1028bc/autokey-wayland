@@ -18,13 +18,15 @@ Keyboard and Mouse Integration
 ------------------------------
 
 For keyboard and mouse integration, AutoKey for Wayland makes use of the 
-"evdev_" event interface in the Linux kernel.  AutoKey interacts with "evdev" 
-through the "/dev/uinput" device.  By default, access to the "/dev/uinput" 
-device is restricted to the root user.  The AutoKey user must, therefore, be 
-granted read/write access to the "/dev/uinput" device.  During AutoKey 
-installation, a new UDEV_ rule is installed, which changes the permissions for 
-the /dev/uinput device to allow access for the members of the "input" user 
-group.  The AutoKey user is added to that group.
+"evdev_" event interface in the Linux kernel.  AutoKey uses evdev to monitor keyboard
+and mouse events on the /dev/input devices.  It also uses evdev to define a virtual 
+input device, through which it sends its own keyboard and mouse input via the 
+"/dev/uinput" kernel device.  By default, access to the /dev/uinput device is 
+restricted to the root user.  The AutoKey user must, therefore, be granted 
+read/write access to the "/dev/uinput" device.  During AutoKey installation, 
+a new UDEV_ rule is installed, which changes the permissions for the /dev/uinput 
+device to allow access for the members of the "input" user group.  The AutoKey 
+user is added to that group.
 
 Manipulating Desktop Windows
 ----------------------------
