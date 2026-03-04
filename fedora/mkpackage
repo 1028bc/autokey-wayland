@@ -37,8 +37,8 @@ def doCmd(cmd, capture=True):
     except subprocess.CalledProcessError as e:
         logging.error(f'{cmd} failed, return code = {e.returncode}')
         if capture:
-            logging.info(f'stdout:\n{e.stdout}')
-            logging.info(f'stderr:\n{e.stderr}')
+            logging.info(f'stdout:\n{e.stdout.decode("utf-8")}')
+            logging.info(f'stderr:\n{e.stderr.decode("utf-8")}')
         return e
     except Exception as e:
         logging.exception(f'"{cmd}" command failed, return code = {e.returncode}')
@@ -53,6 +53,11 @@ parser.add_option('-n', '--nocopr', action='store_false', dest='do_copr', defaul
 (opts, args) = parser.parse_args()
 
 logging.info('Setting up RPM package build environment')
+
+#  Do whatever tests there are.
+p = doCmd('pytest ~/src/autokey-wayland')
+if p.returncode != 0:
+    exit(p.returncode)
 
 #  Make sure that the rpmbuild and rpmdev-setuptree tools are installed
 p = doCmd('sudo dnf -y install rpm-build rpmdevtools')
