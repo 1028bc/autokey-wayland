@@ -23,9 +23,9 @@ from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.gnome_interface import GnomeExtensionWindowInterface
-from autokey.sys_interface.kde_interface import KDEWaylandInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
+from autokey.sys_interface.kde_interface import KDEWaylandInterface
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 from autokey.model.button import Button
@@ -69,7 +69,7 @@ class IoMediator(threading.Thread):
             pass
         elif session_type is None:
             pass
-
+        
         if self.interfaceType == "uinput":
             desktop = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
             if 'kde' in desktop or 'plasma' in desktop:
@@ -107,7 +107,6 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         logger.debug("IoMediator shutting down")
         self.interface.cancel()
-        logger.debug("queue.put_nowait()")
         self.queue.put_nowait((None, None))
         logger.debug("Waiting for IoMediator thread to end")
         self.join()
@@ -308,4 +307,13 @@ class IoMediator(threading.Thread):
         for _ in range(count):
             self.send_key(Key.BACKSPACE)
 
-    def flush(self
+    def flush(self):
+        self.interface.flush()
+        
+    # Utility methods ----
+    
+    def _clear_modifiers(self):
+        self.releasedModifiers = []
+        
+        for modifier in list(self.modifiers.keys()):
+            if self.modifiers[modifier] and modifier not
